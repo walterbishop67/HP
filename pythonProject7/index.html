@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Firebase Storage Fotoğraf Yükleme</title>
+    <script type="module">
+        // Firebase SDK modüllerini import ediyoruz
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-app.js";
+        import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/9.6.0/firebase-storage.js";
+
+        // Firebase yapılandırması
+        const firebaseConfig = {
+            apiKey: "AIzaSyBsVsZYR2TZYRU7_JdxUrTAJJZSpqiGOm8",
+            authDomain: "hemphotodb.firebaseapp.com",
+            projectId: "hemphotodb",
+            storageBucket: "hemphotodb.appspot.com",
+            messagingSenderId: "1082986530209",
+            appId: "1:1082986530209:web:ea60cfdff854dae7e8f7e0"
+        };
+
+        // Firebase uygulamasını başlatıyoruz
+        const app = initializeApp(firebaseConfig);
+
+        // Storage servisini alıyoruz
+        const storage = getStorage(app);
+
+        // Fotoğraf yükleme fonksiyonu
+        window.uploadFile = function () {  // Fonksiyonu global hale getiriyoruz
+            const fileInput = document.getElementById("fileInput");
+            const file = fileInput.files[0]; // Seçilen dosya
+
+            if (!file) {
+                alert("Lütfen bir dosya seçin.");
+                return;
+            }
+
+            // Firebase Storage referansı
+            const storageRef = ref(storage, 'images/' + file.name);
+
+            // Dosyayı yükleme işlemi
+            uploadBytes(storageRef, file).then((snapshot) => {
+                console.log('Dosya başarıyla yüklendi!');
+
+                // Yüklenen dosyanın URL'sini alıyoruz
+                getDownloadURL(snapshot.ref).then((url) => {
+                    console.log('Yüklenen dosyanın URL\'si: ', url);
+                    document.getElementById("output").innerHTML = `Fotoğraf başarıyla yüklendi! <a href="${url}" target="_blank">Görüntüle</a>`;
+                });
+            }).catch((error) => {
+                console.error('Dosya yüklenirken hata oluştu:', error);
+            });
+        }
+    </script>
+</head>
+<body>
+
+    <h1>Firebase Storage'a Fotoğraf Yükleme</h1>
+
+    <!-- Fotoğraf seçme ve yükleme formu -->
+    <input type="file" id="fileInput" accept="image/*">
+    <button onclick="uploadFile()">Yükle</button>
+
+    <div id="output"></div>
+
+</body>
+</html>
